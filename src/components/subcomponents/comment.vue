@@ -2,9 +2,9 @@
   <div class="cmt-container">
     <h3>发表评论</h3>
     <hr>
-    <textarea placeholder="请输入要BB的内容(最多吐槽120字)" maxlength="120"></textarea>
+    <textarea placeholder="请输入要BB的内容(最多吐槽120字)" maxlength="120" v-model="msg"></textarea>
 
-    <mt-button type="primary" size="large">发表评论</mt-button>
+    <mt-button type="primary" size="large" @click="postComment">发表评论</mt-button>
 
     <div class="cmt-list">
       <div class="cmt-item" v-for="{item,i} in comments" :key="item.add_time">
@@ -25,7 +25,8 @@ export default {
   data() {
     return {
       pageIndex: 1, // 默认展示第一页面数据
-      comments: [] //所有的评论数据
+      comments: [], //所有的评论数据
+      msg: "" //评论输入的内容
     };
   },
   created() {
@@ -40,7 +41,7 @@ export default {
           if (result.body.status === 0) {
             // this.comments = result.body.message;
             // 每当获取新评论数据的时候，不要把老数据清空覆盖，而是应该以老数据，拼接上新数据
-            this.comments = this.comments.concat(result.body.message)
+            this.comments = this.comments.concat(result.body.message);
           } else {
             Toast("获取评论失败！");
           }
@@ -50,6 +51,33 @@ export default {
       //加载更多
       this.pageIndex++;
       this.getComments();
+    },
+    postComment() {
+      // 校验是否为空内容
+      if (this.msg.trim().length === 0) {
+        return Toast("评论内容不能为空！");
+      }
+
+      // 发表评论
+      // 参数1：请求url地址
+      // 参数2：提交给服务器的数据对象{content:this.msg}
+      // 参数3：定义提交的时候，表单中的数据格式{emulateJOSN:true}
+      this.$http
+        .post("api/postcomment/" + this.$route.params.id, {
+          content: this.msg.trim()
+        })
+        .then(function(result) {
+          if (result.body.status === 0) {
+            // 1.拼接出一个评论对象
+            var cmt = {
+              user_name: "匿名用户",
+              add_time: Date.now(),
+              content: this.msg.trim()
+            };
+            this.comments.unshift(cmt);
+            this.msg = "";
+          }
+        });
     }
   },
   props: ["id"]
