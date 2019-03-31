@@ -1,7 +1,8 @@
 <template>
   <div class="app-container">
     <!-- 顶部Header区域 -->
-    <mt-header fixed title="黑马程序员·Vue项目"></mt-header>
+    <mt-header fixed title="黑马程序员·Vue项目" ></mt-header>
+    
 
     <!-- 中间的路由router-view区域 -->
     <transition>
@@ -27,11 +28,31 @@
         <span class="mui-icon mui-icon-search"></span>
         <span class="mui-tab-label">搜索</span>
       </router-link>
+
+      <!-- 返回上一页按钮 -->
+      <div class="mui-tab-item-llb" to="/search">
+        <span class="mui-tab-label" @click="back">返回</span>
+      </div>
+
+      
     </nav>
   </div>
 </template>
 
 <script>
+export default {
+  data() {
+    return {
+      
+    }
+  },
+  methods: {
+    // 返回上一页
+    back(){
+      this.$router.go(-1)
+    }
+  },
+}
 </script>
 
 <style lang="scss" scoped>
