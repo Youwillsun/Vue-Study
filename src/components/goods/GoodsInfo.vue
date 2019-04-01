@@ -30,6 +30,11 @@
           <p>
             <mt-button type="primary" size="small">立即购买</mt-button>
             <mt-button type="danger" size="small" @click="addToShopCar">加入购物车</mt-button>
+            <!-- 分析：如何实现加入购物车时候，拿到选择的数量 -->
+            <!-- 1. 经过分析发现：按钮属于goodsinfo 页面，数字数据numberbox组件 -->
+            <!-- 2. 由于涉及到了父子组件的嵌套了,所以,无法直接在goodsinfo页面中获取到选中的商品数量值 -->
+            <!-- 3. 怎么解决这个问题：设计到了 子组件向父组件传值了（事件调用机制） -->
+            <!-- 4. 事件调用的本质：父向子传递方法，子调用这个方法，同时 把数据当做参数，传递给这个方法 -->
           </p>
         </div>
       </div>
@@ -102,8 +107,31 @@ export default {
       // 添加到购物车
       this.ballFlag = !this.ballFlag;
     },
-    beforeEnter(el){
-      enter(el){}
+    beforeEnter(el) {
+      el.style.transform = "translate(0,0)";
+    },
+    enter(el, done) {
+      el.offsetWidth;
+
+      // 不能把小球动画的横纵位移坐标写死，不然会造成页面滑动或者屏幕像素比改变的情况下，导致小球动画轨迹有偏差。
+      // 要先得到徽标的横纵坐标，在得到小球的横纵坐标，然后让横纵坐标值求差，就能得到位移的距离。
+      // 获取小球和徽标的位置： Object.getBoundingClientRect()
+
+      // 获取小球在页面中的位置
+      const ballPosition =  this.$refs.ball.getBoundingClientRect();
+      //获取徽标在页面中的位置
+      const badgePosition = document.getElementById("badge").getBoundingClientRect();
+
+      // 计算横纵坐标差
+      const xDist = badgePosition.left - ballPosition.left;
+      const yDist = badgePosition.top - ballPosition.top;
+
+      el.style.transform = `translate(${xDist}px,${yDist}px)`;
+      el.style.transition = "all 1s cubic-bezier(.4,-0.3,1,.68)";
+      done();
+    },
+    afterEnter(el) {
+      this.ballFlag = !this.ballFlag;
     }
   },
   components: {
