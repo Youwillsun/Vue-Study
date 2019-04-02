@@ -71,7 +71,7 @@ export default {
       lubotu: [], //轮播图数据
       goodsinfo: {}, //获取到的商品的信息
       ballFlag: false, // 控制小球隐藏和显示的标识符
-      selectedCount:1 //保存用户选中的商品数量，默认认为用户买一个
+      selectedCount: 1 //保存用户选中的商品数量，默认认为用户买一个
     };
   },
   created() {
@@ -109,6 +109,16 @@ export default {
     addToShopCar() {
       // 添加到购物车
       this.ballFlag = !this.ballFlag;
+      // {id:商品id，count:要购买的数量，price:商品的单价，selected:true}
+      // 拼接出一个要保存到store中car数组里的商品信息对象
+      var goodsinfo = {
+        id: this.id,
+        count: this.selectedCount,
+        price: this.goodsinfo.sell_price,
+        selected: true
+      };
+      // 调用store 中的mutations来将商品加入购物车
+      this.$store.commit("addToCar",goodsinfo)
     },
     beforeEnter(el) {
       el.style.transform = "translate(0,0)";
@@ -121,9 +131,11 @@ export default {
       // 获取小球和徽标的位置： Object.getBoundingClientRect()
 
       // 获取小球在页面中的位置
-      const ballPosition =  this.$refs.ball.getBoundingClientRect();
+      const ballPosition = this.$refs.ball.getBoundingClientRect();
       //获取徽标在页面中的位置
-      const badgePosition = document.getElementById("badge").getBoundingClientRect();
+      const badgePosition = document
+        .getElementById("badge")
+        .getBoundingClientRect();
 
       // 计算横纵坐标差
       const xDist = badgePosition.left - ballPosition.left;
@@ -136,10 +148,10 @@ export default {
     afterEnter(el) {
       this.ballFlag = !this.ballFlag;
     },
-    getSelectedCount(count){
+    getSelectedCount(count) {
       // 当子组件把选中的数量传递给父组件的时候，那选中的值保存到selectedCount身上
       this.selectedCount = count;
-      console.log('父组件拿到的值为：'+ this.selectedCount)
+      console.log("父组件拿到的值为：" + this.selectedCount);
     }
   },
   components: {
