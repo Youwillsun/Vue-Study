@@ -1,7 +1,7 @@
 <template>
   <div class="goodsinfo-container">
     <transition @before-enter="beforeEnter" @enter="enter" @after-enter="afterEnter">
-      <div class="ball" v-show="ballFlag"></div>
+      <div class="ball" v-show="ballFlag" ref="ball"></div>
     </transition>
 
     <!-- 商品轮播图区域 -->
@@ -23,9 +23,11 @@
             <del>￥{{goodsinfo.market_price}}</del>&nbsp;&nbsp;销售价:
             <span class="now_price">￥{{goodsinfo.sell_price}}</span>
           </p>
+          <!-- 问题：我们不知道什么时候能够拿到max值，但是。终归有一刻，会得到一个真正的max值 -->
+          <!-- 我们可以使用watch属性监听父组件传递过来的max值，不管watch会被触发几次，但是最后一次，肯定是一个合法的max数值 -->
           <p>
             购买数量：
-            <numbox></numbox>
+            <numbox @getcount="getSelectedCount" :max="goodsinfo.stock_quantity"></numbox>
           </p>
           <p>
             <mt-button type="primary" size="small">立即购买</mt-button>
@@ -68,7 +70,8 @@ export default {
       id: this.$route.params.id, //将路由参数对象中的id挂载到data上，方便后期调用
       lubotu: [], //轮播图数据
       goodsinfo: {}, //获取到的商品的信息
-      ballFlag: false // 控制小球隐藏和显示的标识符
+      ballFlag: false, // 控制小球隐藏和显示的标识符
+      selectedCount:1 //保存用户选中的商品数量，默认认为用户买一个
     };
   },
   created() {
@@ -127,11 +130,16 @@ export default {
       const yDist = badgePosition.top - ballPosition.top;
 
       el.style.transform = `translate(${xDist}px,${yDist}px)`;
-      el.style.transition = "all 1s cubic-bezier(.4,-0.3,1,.68)";
+      el.style.transition = "all .5s cubic-bezier(.4,-0.3,1,.68)";
       done();
     },
     afterEnter(el) {
       this.ballFlag = !this.ballFlag;
+    },
+    getSelectedCount(count){
+      // 当子组件把选中的数量传递给父组件的时候，那选中的值保存到selectedCount身上
+      this.selectedCount = count;
+      console.log('父组件拿到的值为：'+ this.selectedCount)
     }
   },
   components: {
